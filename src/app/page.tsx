@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Activity,
@@ -136,6 +137,19 @@ const metrics = [
   { label: "Hours Saved", value: "46.5", detail: "Every operating week" },
   { label: "Data Sources Connected", value: "17", detail: "APIs, sheets, PDFs, SQL" },
 ];
+
+const calendlyUrl =
+  process.env.NEXT_PUBLIC_CALENDLY_URL ||
+  "https://calendly.com/tbrown-brownstonehub/brownstone-hub-consultation";
+
+type AuditFormData = {
+  name: string;
+  email: string;
+  company: string;
+  message: string;
+};
+
+type AuditFormErrors = Partial<Record<keyof AuditFormData, string>>;
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -357,6 +371,72 @@ function OperationsIllustration() {
 }
 
 export default function Home() {
+  const [auditFormData, setAuditFormData] = useState<AuditFormData>({
+    name: "",
+    email: "",
+    company: "",
+    message: "",
+  });
+  const [auditFormErrors, setAuditFormErrors] = useState<AuditFormErrors>({});
+  const [isSubmittingAudit, setIsSubmittingAudit] = useState(false);
+
+  const validateAuditForm = () => {
+    const errors: AuditFormErrors = {};
+
+    if (!auditFormData.name.trim()) {
+      errors.name = "Name is required";
+    }
+
+    if (!auditFormData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(auditFormData.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    if (!auditFormData.company.trim()) {
+      errors.company = "Company is required";
+    }
+
+    if (!auditFormData.message.trim()) {
+      errors.message = "Tell us which workflow is slowing you down";
+    }
+
+    setAuditFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleAuditFormChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+
+    setAuditFormData((previous) => ({ ...previous, [name]: value }));
+
+    if (auditFormErrors[name as keyof AuditFormData]) {
+      setAuditFormErrors((previous) => {
+        const updatedErrors = { ...previous };
+        delete updatedErrors[name as keyof AuditFormData];
+        return updatedErrors;
+      });
+    }
+  };
+
+  const handleAuditSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!validateAuditForm()) {
+      return;
+    }
+
+    setIsSubmittingAudit(true);
+
+    const schedulingUrl = new URL(calendlyUrl);
+    schedulingUrl.searchParams.set("name", auditFormData.name.trim());
+    schedulingUrl.searchParams.set("email", auditFormData.email.trim());
+    schedulingUrl.searchParams.set("a1", auditFormData.company.trim());
+    schedulingUrl.searchParams.set("a2", auditFormData.message.trim());
+
+    window.location.href = schedulingUrl.toString();
+  };
+
   return (
     <main className="relative isolate overflow-hidden bg-slate-950 text-white">
       <div className="noise" aria-hidden="true" />
@@ -663,27 +743,65 @@ export default function Home() {
                   <div className="flex gap-3"><Workflow className="h-5 w-5 text-cyan-200" /> Built around your existing operational reality.</div>
                 </div>
               </div>
-              <form className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-5 backdrop-blur-xl sm:p-7" aria-label="Workflow audit request form">
+              <form onSubmit={handleAuditSubmit} className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-5 backdrop-blur-xl sm:p-7" aria-label="Workflow audit request form">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="space-y-2 text-sm font-medium text-slate-200">
+                  <label htmlFor="audit-name" className="space-y-2 text-sm font-medium text-slate-200">
                     Name
-                    <Input name="name" placeholder="Your name" autoComplete="name" />
+                    <Input
+                      id="audit-name"
+                      name="name"
+                      value={auditFormData.name}
+                      onChange={handleAuditFormChange}
+                      placeholder="Your name"
+                      autoComplete="name"
+                      aria-invalid={Boolean(auditFormErrors.name)}
+                    />
+                    {auditFormErrors.name && <span className="block text-xs text-red-300">{auditFormErrors.name}</span>}
                   </label>
-                  <label className="space-y-2 text-sm font-medium text-slate-200">
+                  <label htmlFor="audit-email" className="space-y-2 text-sm font-medium text-slate-200">
                     Email
-                    <Input name="email" type="email" placeholder="you@company.com" autoComplete="email" />
+                    <Input
+                      id="audit-email"
+                      name="email"
+                      type="email"
+                      value={auditFormData.email}
+                      onChange={handleAuditFormChange}
+                      placeholder="you@company.com"
+                      autoComplete="email"
+                      aria-invalid={Boolean(auditFormErrors.email)}
+                    />
+                    {auditFormErrors.email && <span className="block text-xs text-red-300">{auditFormErrors.email}</span>}
                   </label>
                 </div>
-                <label className="mt-4 block space-y-2 text-sm font-medium text-slate-200">
+                <label htmlFor="audit-company" className="mt-4 block space-y-2 text-sm font-medium text-slate-200">
                   Company
-                  <Input name="company" placeholder="Company name" autoComplete="organization" />
+                  <Input
+                    id="audit-company"
+                    name="company"
+                    value={auditFormData.company}
+                    onChange={handleAuditFormChange}
+                    placeholder="Company name"
+                    autoComplete="organization"
+                    aria-invalid={Boolean(auditFormErrors.company)}
+                  />
+                  {auditFormErrors.company && <span className="block text-xs text-red-300">{auditFormErrors.company}</span>}
                 </label>
-                <label className="mt-4 block space-y-2 text-sm font-medium text-slate-200">
+                <label htmlFor="audit-message" className="mt-4 block space-y-2 text-sm font-medium text-slate-200">
                   What workflow is slowing you down?
-                  <Textarea name="message" placeholder="Example: monthly compliance reports, bank reconciliations, spreadsheet-heavy approvals, disconnected dashboards..." />
+                  <Textarea
+                    id="audit-message"
+                    name="message"
+                    value={auditFormData.message}
+                    onChange={handleAuditFormChange}
+                    placeholder="Example: monthly compliance reports, bank reconciliations, spreadsheet-heavy approvals, disconnected dashboards..."
+                    aria-invalid={Boolean(auditFormErrors.message)}
+                  />
+                  {auditFormErrors.message && <span className="block text-xs text-red-300">{auditFormErrors.message}</span>}
                 </label>
-                <Button type="button" className="mt-6 w-full" size="lg">Book a Workflow Audit <ArrowRight className="h-4 w-4" /></Button>
-                <p className="mt-4 text-center text-xs leading-5 text-slate-500">Form wiring can connect to your preferred CRM, email inbox, or scheduling flow.</p>
+                <Button type="submit" disabled={isSubmittingAudit} className="mt-6 w-full" size="lg">
+                  {isSubmittingAudit ? "Opening Calendly..." : "Book a Workflow Audit"} <ArrowRight className="h-4 w-4" />
+                </Button>
+                <p className="mt-4 text-center text-xs leading-5 text-slate-500">After the form, you’ll pick a time in Calendly. Your name and email will carry over automatically.</p>
               </form>
             </CardContent>
           </Card>

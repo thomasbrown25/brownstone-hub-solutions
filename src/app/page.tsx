@@ -23,7 +23,6 @@ import {
   RefreshCw,
   ShieldCheck,
   Sparkles,
-  UserRound,
   Users,
   Workflow,
   Zap,
@@ -299,73 +298,132 @@ function CommandCenterGraphic() {
 }
 
 function OperationsIllustration() {
-  const avatars = [
-    { name: "Ops", className: "left-[8%] top-[58%]", color: "bg-cyan-300" },
-    { name: "Finance", className: "left-[28%] top-[72%]", color: "bg-blue-300" },
-    { name: "Compliance", className: "right-[12%] top-[60%]", color: "bg-orange-300" },
-    { name: "Analyst", className: "left-[48%] top-[20%]", color: "bg-emerald-300" },
+  const flowNodes = [
+    { label: "Intake", detail: "Forms", Icon: Database, tone: "cyan", className: "left-[7%] top-[22%]" },
+    { label: "Rules", detail: "Logic", Icon: GitBranch, tone: "blue", className: "left-[7%] bottom-[22%]" },
+    { label: "Review", detail: "Approvals", Icon: Users, tone: "emerald", className: "right-[7%] top-[22%]" },
+    { label: "Output", detail: "Reports", Icon: FileCheck2, tone: "amber", className: "right-[7%] bottom-[22%]" },
   ];
+
+  const activityRows = [
+    ["CSV import normalized", "2.4s", "bg-cyan-300"],
+    ["Approval routed to Finance", "live", "bg-emerald-300"],
+    ["Exception queue updated", "8 new", "bg-orange-300"],
+  ];
+
+  const toneClasses: Record<string, string> = {
+    cyan: "border-cyan-200/25 bg-cyan-300/[0.12] text-cyan-100 shadow-cyan-950/30",
+    blue: "border-blue-200/25 bg-blue-300/[0.12] text-blue-100 shadow-blue-950/30",
+    emerald: "border-emerald-200/25 bg-emerald-300/[0.12] text-emerald-100 shadow-emerald-950/30",
+    amber: "border-orange-200/25 bg-orange-300/[0.12] text-orange-100 shadow-orange-950/30",
+  };
 
   return (
     <motion.div
-      className="relative min-h-[430px] overflow-hidden rounded-[2.25rem] border border-white/10 bg-gradient-to-br from-white/[0.085] via-white/[0.045] to-cyan-400/[0.06] p-6 shadow-2xl shadow-cyan-950/20 backdrop-blur-xl"
-      whileHover={{ scale: 1.015 }}
-      transition={{ type: "spring", stiffness: 180, damping: 20 }}
+      className="group relative min-h-[430px] overflow-hidden rounded-[2.25rem] border border-cyan-200/18 bg-[linear-gradient(145deg,rgba(15,23,42,0.92),rgba(2,6,23,0.78)_46%,rgba(8,47,73,0.5))] p-5 shadow-[0_28px_90px_rgba(8,47,73,0.34)] backdrop-blur-xl sm:p-6"
+      whileHover={{ y: -4, scale: 1.006 }}
+      transition={{ type: "spring", stiffness: 170, damping: 22 }}
       aria-label="Interactive workflow collaboration illustration"
     >
-      <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.08),transparent_38%),radial-gradient(circle_at_50%_42%,rgba(34,211,238,0.14),transparent_36%)]" aria-hidden="true" />
-      <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full border-[28px] border-slate-700/45" aria-hidden="true" />
-      <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full border-[28px] border-transparent border-r-orange-400/90 border-t-cyan-300/80 animate-orbit-slow" aria-hidden="true" />
-      <div className="absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-cyan-200/25 animate-spin-reverse-slow" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(103,232,249,0.16),transparent_30%),radial-gradient(circle_at_76%_74%,rgba(251,146,60,0.12),transparent_28%),linear-gradient(120deg,rgba(255,255,255,0.07),transparent_38%)]" aria-hidden="true" />
+      <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.05)_1px,transparent_1px)] bg-[size:42px_42px] opacity-70" aria-hidden="true" />
 
-      <div className="absolute left-[11%] top-[31%] w-32 rounded-3xl border border-cyan-200/25 bg-slate-950/80 p-3 shadow-xl shadow-cyan-950/25">
-        <div className="mb-3 flex items-center justify-between">
-          <Activity className="h-5 w-5 text-cyan-200" aria-hidden="true" />
-          <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,0.9)]" />
+      <div className="relative flex items-start justify-between gap-4">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-cyan-200/90">workflow operating layer</p>
+          <h3 className="mt-2 text-2xl font-semibold tracking-[-0.045em] text-white">One system around the real process</h3>
         </div>
-        <div className="space-y-2">
-          {[70, 48, 86].map((width) => (
-            <div key={width} className="h-1.5 rounded-full bg-white/10">
-              <motion.div className="h-full rounded-full bg-cyan-300" animate={{ width: [`${Math.max(24, width - 22)}%`, `${width}%`, `${Math.max(34, width - 10)}%`] }} transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }} />
-            </div>
-          ))}
+        <div className="flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1.5 text-xs font-medium text-emerald-100 shadow-[0_0_24px_rgba(16,185,129,0.14)]">
+          <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_14px_rgba(110,231,183,0.95)]" aria-hidden="true" />
+          Synced
         </div>
       </div>
 
-      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 640 430" fill="none" aria-hidden="true">
-        <path d="M156 284 C245 202 343 216 488 284" stroke="url(#pathA)" strokeWidth="4" strokeLinecap="round" strokeDasharray="8 14" />
-        <path d="M240 156 C316 232 400 210 498 140" stroke="url(#pathB)" strokeWidth="3" strokeLinecap="round" strokeDasharray="5 12" />
-        <defs>
-          <linearGradient id="pathA" x1="156" x2="488" y1="284" y2="284"><stop stopColor="#67e8f9" /><stop offset="1" stopColor="#fb923c" /></linearGradient>
-          <linearGradient id="pathB" x1="240" x2="498" y1="156" y2="140"><stop stopColor="#38bdf8" /><stop offset="1" stopColor="#6ee7b7" /></linearGradient>
-        </defs>
-      </svg>
+      <div className="relative mt-6 min-h-[278px] rounded-[1.75rem] border border-white/10 bg-slate-950/45 p-4 shadow-inner shadow-black/20">
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 620 300" fill="none" aria-hidden="true">
+          <path d="M116 92 C220 70 254 130 310 150" stroke="url(#opsLineA)" strokeWidth="3" strokeLinecap="round" strokeDasharray="7 13" />
+          <path d="M116 208 C222 230 254 170 310 150" stroke="url(#opsLineB)" strokeWidth="3" strokeLinecap="round" strokeDasharray="7 13" />
+          <path d="M310 150 C376 106 432 86 506 92" stroke="url(#opsLineC)" strokeWidth="3" strokeLinecap="round" strokeDasharray="7 13" />
+          <path d="M310 150 C376 194 432 214 506 208" stroke="url(#opsLineD)" strokeWidth="3" strokeLinecap="round" strokeDasharray="7 13" />
+          <defs>
+            <linearGradient id="opsLineA" x1="116" x2="310" y1="92" y2="150"><stop stopColor="#67e8f9" /><stop offset="1" stopColor="#38bdf8" /></linearGradient>
+            <linearGradient id="opsLineB" x1="116" x2="310" y1="208" y2="150"><stop stopColor="#93c5fd" /><stop offset="1" stopColor="#67e8f9" /></linearGradient>
+            <linearGradient id="opsLineC" x1="310" x2="506" y1="150" y2="92"><stop stopColor="#67e8f9" /><stop offset="1" stopColor="#6ee7b7" /></linearGradient>
+            <linearGradient id="opsLineD" x1="310" x2="506" y1="150" y2="208"><stop stopColor="#67e8f9" /><stop offset="1" stopColor="#fb923c" /></linearGradient>
+          </defs>
+        </svg>
 
-      {avatars.map((avatar, index) => (
-        <motion.div
-          key={avatar.name}
-          className={`absolute ${avatar.className} group`}
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 4.2, delay: index * 0.45, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <div className="relative flex flex-col items-center gap-2">
-            <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${avatar.color} text-slate-950 shadow-2xl shadow-cyan-950/30 transition duration-300 group-hover:-translate-y-1 group-hover:rotate-3`}>
-              <UserRound className="h-7 w-7" aria-hidden="true" />
-            </div>
-            <span className="rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-200 backdrop-blur">{avatar.name}</span>
+        <div className="absolute left-1/2 top-1/2 z-10 w-[12.8rem] -translate-x-1/2 -translate-y-1/2 rounded-[1.75rem] border border-cyan-200/25 bg-slate-950/88 p-4 text-center shadow-[0_0_50px_rgba(34,211,238,0.2)] backdrop-blur">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-200/25 bg-cyan-300/10 text-cyan-100">
+            <Workflow className="h-7 w-7" aria-hidden="true" />
           </div>
-        </motion.div>
-      ))}
+          <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-200">Unified workflow</p>
+          <p className="mt-1 text-sm font-medium leading-5 text-slate-200">People, data, approvals, and outputs in one loop.</p>
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            {["rules", "data", "alerts"].map((item) => (
+              <span key={item} className="rounded-full border border-white/10 bg-white/[0.055] px-2 py-1 font-mono text-[9px] uppercase tracking-[0.12em] text-slate-300">{item}</span>
+            ))}
+          </div>
+        </div>
 
-      <motion.div className="absolute left-1/2 top-[47%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" animate={{ y: [0, -6, 0] }} transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}>
-        <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-cyan-200/30 bg-cyan-300/15 shadow-[0_0_35px_rgba(34,211,238,0.25)]">
-          <Users className="h-8 w-8 text-cyan-100" aria-hidden="true" />
+        {flowNodes.map(({ label, detail, Icon, tone, className }, index) => (
+          <motion.div
+            key={label}
+            className={`absolute z-20 w-[9.55rem] rounded-2xl border p-3 shadow-xl backdrop-blur ${className} ${toneClasses[tone]}`}
+            animate={{ y: [0, index % 2 === 0 ? -7 : 7, 0] }}
+            transition={{ duration: 4.4, delay: index * 0.32, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <div className="flex items-center gap-2">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-950/45">
+                <Icon className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold leading-4 text-white">{label}</p>
+                <p className="mt-0.5 text-[10px] leading-4 text-slate-300">{detail}</p>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="relative mt-4 grid gap-3 sm:grid-cols-[1fr_0.82fr]">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-400">Live activity</p>
+            <Activity className="h-4 w-4 text-cyan-200" aria-hidden="true" />
+          </div>
+          <div className="space-y-2">
+            {activityRows.map(([label, status, dot], index) => (
+              <motion.div
+                key={label}
+                className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"
+                animate={{ opacity: [0.72, 1, 0.72] }}
+                transition={{ duration: 3.2, delay: index * 0.45, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <span className="flex items-center gap-2"><span className={`h-1.5 w-1.5 rounded-full ${dot}`} />{label}</span>
+                <span className="font-mono text-cyan-100">{status}</span>
+              </motion.div>
+            ))}
+          </div>
         </div>
-        <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-2 text-center backdrop-blur">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-cyan-200">Unified workflow</p>
-          <p className="mt-1 text-xs text-slate-300">People + data + approvals</p>
+
+        <div className="rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.055] p-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-cyan-200">System health</p>
+          <div className="mt-3 space-y-3">
+            {[
+              ["Data synced", "96%"],
+              ["Manual steps removed", "14"],
+              ["Approvals active", "7"],
+            ].map(([label, value]) => (
+              <div key={label} className="flex items-center justify-between border-b border-white/10 pb-2 last:border-0 last:pb-0">
+                <span className="text-xs text-slate-400">{label}</span>
+                <span className="font-mono text-sm text-white">{value}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }

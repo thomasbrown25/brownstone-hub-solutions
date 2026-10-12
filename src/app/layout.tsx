@@ -1,33 +1,29 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Sora } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const sora = Sora({
-  variable: "--font-sora",
+const space = Space_Grotesk({
+  variable: "--font-space",
   subsets: ["latin"],
-  display: "swap",
-});
-
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://brownstonehubsolutions.com"),
   title: {
-    default: "Brownstone Hub Solutions | AI Automation & Custom Software for SMBs",
+    default: "Brownstone Hub Solutions | Small Business Websites & AI Automation",
     template: "%s | Brownstone Hub Solutions",
   },
   description:
-    "Brownstone Hub Solutions builds practical AI workflow automation, reporting automation, compliance systems, bank reconciliation tools, dashboards, and custom software for small and mid-sized businesses.",
+    "Brownstone Hub Solutions builds websites for small businesses and AI-agent workflows that streamline everyday work, alongside custom software, dashboards, reporting, and integrations.",
   keywords: [
     "AI automation solutions",
     "custom AI automation",
     "business process automation",
     "SMB automation services",
+    "small business website development",
+    "websites for small businesses",
+    "AI agents for small business",
     "AI workflow automation",
     "compliance workflow automation",
     "bank reconciliation automation",
@@ -49,15 +45,15 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://brownstonehubsolutions.com",
     siteName: "Brownstone Hub Solutions",
-    title: "Brownstone Hub Solutions | Intelligent Workflow Automation",
+    title: "Brownstone Hub Solutions | Websites & AI Automation",
     description:
-      "AI-powered automation and custom technology systems for reporting, compliance, reconciliation, data-heavy workflows, and internal business tools.",
+      "Websites for small businesses and AI-agent workflows built around the way your business works.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Brownstone Hub Solutions | AI Automation & Custom Software",
+    title: "Brownstone Hub Solutions | Websites & AI Automation",
     description:
-      "Turn messy business workflows into intelligent systems with practical AI automation, custom software, and fractional CTO support.",
+      "Small business websites and practical AI-agent workflows built around your business.",
   },
   robots: {
     index: true,
@@ -78,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${sora.variable} ${plexMono.variable} scroll-smooth`}>
+    <html lang="en" className={`${space.variable} scroll-smooth`}>
       <body>{children}</body>
     </html>
   );

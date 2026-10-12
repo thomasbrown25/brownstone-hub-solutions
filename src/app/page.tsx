@@ -1,877 +1,119 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import {
-  Activity,
-  ArrowRight,
-  Bot,
-  BrainCircuit,
-  Building2,
-  CheckCircle2,
-  CircleDollarSign,
-  Code2,
-  Cpu,
-  Database,
-  FileCheck2,
-  GitBranch,
-  Layers3,
-  LineChart,
-  LockKeyhole,
-  Network,
-  PieChart,
-  RefreshCw,
-  ShieldCheck,
-  Sparkles,
-  Users,
-  Workflow,
-  Zap,
-} from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
+import { useState, type FormEvent } from "react";
+import { ArrowRight, ArrowUpRight, Bot, Check, ChevronDown, Code2, Database, FileCheck2, Globe2, Layers3, Menu, MousePointer2, Play, Sparkles, X, Zap } from "lucide-react";
 
-const viewportOnce = { once: true, amount: 0.08, margin: "0px 0px -4% 0px" } as const;
-
-const fadeUp = {
-  hidden: { opacity: 0.35, y: 24, filter: "blur(5px)" },
-  visible: { opacity: 1, y: 0, filter: "blur(0px)" },
-};
-
-const cardReveal = {
-  hidden: { opacity: 0.32, y: 20, scale: 0.985, filter: "blur(4px)" },
-  visible: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
-};
-
-const services = [
-  {
-    title: "AI Workflow Automation",
-    icon: BrainCircuit,
-    copy: "Connect AI to the actual operating process: intake, decisions, data cleanup, approvals, exceptions, and delivery.",
-  },
-  {
-    title: "Reporting & Dashboard Automation",
-    icon: LineChart,
-    copy: "Replace recurring spreadsheet reporting with live metrics, scheduled outputs, and reliable executive dashboards.",
-  },
-  {
-    title: "Compliance Workflow Automation",
-    icon: FileCheck2,
-    copy: "Build structured processes for evidence collection, document generation, review trails, and recurring compliance reporting.",
-  },
-  {
-    title: "Bank Reconciliation Automation",
-    icon: CircleDollarSign,
-    copy: "Automate transaction matching, exception queues, account visibility, and reconciliation status reporting.",
-  },
-  {
-    title: "Internal Business Applications",
-    icon: Code2,
-    copy: "Custom portals, admin systems, approval tools, data apps, and operational software built around your business rules.",
-  },
-  {
-    title: "Fractional CTO Support",
-    icon: Network,
-    copy: "Practical technical strategy for SMBs that need senior guidance without hiring a full-time technology executive.",
-  },
+const benefits = [
+  { icon: Globe2, title: "Look ready for business", copy: "A fast, polished website gives people a clear reason to trust you, understand your services, and get in touch." },
+  { icon: Bot, title: "Give repetitive work to agents", copy: "AI agents can help organize intake, process information, prepare drafts, and hand the right decisions back to your team." },
+  { icon: Layers3, title: "Make your tools work together", copy: "Connect forms, spreadsheets, databases, and the software you already use instead of moving information by hand." },
 ];
 
-const useCases = [
-  ["Bank reconciliations", "Import statements, match records, flag exceptions, and produce audit-ready summaries."],
-  ["Compliance reporting", "Collect evidence, generate recurring reports, and track review status across teams."],
-  ["Data analysis and visualizations", "Turn fragmented exports into dashboards that expose trends, risks, and opportunities."],
-  ["Spreadsheet replacement", "Move fragile workbooks into secure, role-aware apps with validations and workflows."],
-  ["Data Migration and Imports", "Use AI import agents to interpret CSV exports, map messy headers to the right fields, validate records, and move data into cleaner systems with less manual cleanup."],
-  ["Operational dashboards", "Unify KPIs from CRMs, accounting systems, spreadsheets, APIs, and custom databases."],
+const questions = [
+  { question: "What kind of websites do you build?", answer: "We build custom websites for small businesses that clearly explain what you do and make it easy for customers to contact you. We can also connect forms and other tools to your operational workflow." },
+  { question: "Do we need to replace our existing tools to use AI agents?", answer: "Not necessarily. We start with your current process and look for practical ways to connect or improve the tools you already have. The right solution depends on the systems and access available." },
+  { question: "Is this just a chatbot?", answer: "No. An AI agent can be one part of a larger process. We also build the software, integrations, validation, reporting, and human review steps that make an automation useful." },
+  { question: "Can you help with reporting, compliance, or reconciliation?", answer: "Yes. Brownstone Hub Solutions also works on reporting dashboards, compliance workflows, bank reconciliation tools, data imports, and internal business applications." },
+  { question: "How do we get started?", answer: "Send us a message about your website or a workflow that slows your team down. We'll follow up by email to discuss an appropriate next step." },
 ];
 
-const tech = [
-  "Next.js",
-  "React",
-  "TypeScript",
-  ".NET",
-  "C#",
-  "SQL Server",
-  "PostgreSQL",
-  "Azure",
-  "OpenAI",
-  "Azure OpenAI",
-  "API integrations",
-  "Workflow automation",
-  "Data visualization",
-  "Secure authentication",
-  "Role-based access",
-];
-
-const workflow = [
-  {
-    step: "01",
-    title: "Workflow Audit",
-    copy: "We map the messy reality: spreadsheets, approvals, systems, exports, handoffs, manual checks, and bottlenecks.",
-  },
-  {
-    step: "02",
-    title: "Automation Plan",
-    copy: "You get a practical plan for what to automate, what to integrate, what to rebuild, and where AI actually helps.",
-  },
-  {
-    step: "03",
-    title: "Custom Build",
-    copy: "We design and build the software, automations, dashboards, and integrations around your real business process.",
-  },
-  {
-    step: "04",
-    title: "Launch & Improve",
-    copy: "We deploy, train, measure time saved, monitor exceptions, and keep improving as the workflow evolves.",
-  },
-];
-
-const metrics = [
-  { label: "Reconciliation Match Rate", value: "94.8%", detail: "+18.2% vs manual review" },
-  { label: "Compliance Reports Generated", value: "312", detail: "Quarter-to-date" },
-  { label: "Hours Saved", value: "46.5", detail: "Every operating week" },
-  { label: "Data Sources Connected", value: "17", detail: "APIs, sheets, PDFs, SQL" },
-];
-
-const calendlyUrl =
-  process.env.NEXT_PUBLIC_CALENDLY_URL ||
-  "https://calendly.com/tbrown-brownstonehub/brownstone-hub-consultation";
-
-type AuditFormData = {
-  name: string;
-  email: string;
-  company: string;
-  message: string;
-};
-
-type AuditFormErrors = Partial<Record<keyof AuditFormData, string>>;
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <Badge className="mb-5">
-      <Sparkles className="mr-2 h-3.5 w-3.5" aria-hidden="true" />
-      {children}
-    </Badge>
-  );
+function Mark() {
+  return <span className="brand-mark" aria-hidden="true"><span /><span /><span /></span>;
 }
 
-function AnimatedSection({
-  children,
-  className = "",
-  id,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  id?: string;
-}) {
-  return (
-    <section id={id} className={className}>
-      {children}
-    </section>
-  );
+function ButtonLink({ href, children, secondary = false }: { href: string; children: React.ReactNode; secondary?: boolean }) {
+  return <a className={`action-button ${secondary ? "action-button-secondary" : ""}`} href={href}>{children}</a>;
 }
 
-function Reveal({
-  children,
-  delay = 0,
-  className,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
+function FlowVisual({ compact = false }: { compact?: boolean }) {
   return (
-    <motion.div
-      className={className}
-      variants={cardReveal}
-      initial="hidden"
-      whileInView="visible"
-      viewport={viewportOnce}
-      transition={{ duration: 0.62, delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-function CommandCenterGraphic() {
-  const workflowSteps = ["Bank feed", "AI match", "Exception route", "Report sent"];
-
-  return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-cyan-300/20 bg-slate-950/80 p-5 shadow-2xl shadow-cyan-950/30">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_18%,rgba(34,211,238,0.18),transparent_28%),radial-gradient(circle_at_80%_24%,rgba(59,130,246,0.16),transparent_30%)]" aria-hidden="true" />
-      <div className="absolute left-8 right-8 top-0 h-px origin-center bg-gradient-to-r from-transparent via-cyan-200 to-transparent animate-pulse-line" aria-hidden="true" />
-
-      <div className="relative mb-5 flex items-center justify-between gap-4">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-200">Live workflow command center</p>
-          <h3 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">Operations Intelligence Layer</h3>
+    <div className={`flow-visual ${compact ? "flow-visual-compact" : ""}`} aria-label="Illustration of a website inquiry moving through an AI-assisted workflow" role="img">
+      <div className="flow-window">
+        <div className="window-top"><span className="mini-brand"><Mark /> Brownstone / Workflow</span><span className="window-dots">● ● ●</span></div>
+        <div className="flow-canvas">
+          <div className="flow-path path-one" /><div className="flow-path path-two" /><div className="flow-path path-three" />
+          <div className="flow-node node-one"><span className="node-icon"><Globe2 size={17} /></span><span><strong>Website inquiry</strong><small>New customer request</small></span><span className="node-status">01</span></div>
+          <div className="flow-node node-two"><span className="node-icon"><Bot size={17} /></span><span><strong>AI agent</strong><small>Organize &amp; prepare</small></span><span className="node-status">02</span></div>
+          <div className="flow-node node-three"><span className="node-icon"><Check size={17} /></span><span><strong>Team review</strong><small>Approve next step</small></span><span className="node-status">03</span></div>
         </div>
-        <div className="rounded-2xl border border-emerald-300/25 bg-emerald-300/10 px-3 py-1.5 font-mono text-xs text-emerald-200">Online</div>
+        <div className="window-bottom"><span><span className="live-dot" /> Example workflow</span><span>Designed around your business</span></div>
       </div>
-
-      <div className="relative grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-cyan-200">Automation engine</p>
-              <p className="mt-1 text-sm font-semibold text-white">Workflow sequence live</p>
-            </div>
-            <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10">
-              <RefreshCw className="h-6 w-6 animate-spin-slow text-cyan-200" aria-hidden="true" />
-              <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,0.9)]" aria-hidden="true" />
-            </div>
-          </div>
-
-          <div className="relative mt-6 h-48 rounded-[1.5rem] border border-white/10 bg-slate-900/65 p-4">
-            <div className="absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/20 bg-cyan-300/5" aria-hidden="true" />
-            <div className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-blue-300/20 bg-blue-400/10" aria-hidden="true" />
-            <Cpu className="absolute left-1/2 top-1/2 z-10 h-8 w-8 -translate-x-1/2 -translate-y-1/2 text-cyan-100" aria-hidden="true" />
-            <div className="absolute inset-8 rounded-full border border-dashed border-cyan-200/25 animate-spin-reverse-slow" aria-hidden="true" />
-            <div className="absolute inset-14 rounded-full border border-dashed border-blue-200/20 animate-spin-slow" aria-hidden="true" />
-
-            {[
-              { className: "left-4 top-6 bg-cyan-300/15 text-cyan-100", Icon: Database },
-              { className: "right-5 top-7 bg-blue-300/15 text-blue-100", Icon: FileCheck2 },
-              { className: "bottom-5 left-8 bg-emerald-300/15 text-emerald-100", Icon: LineChart },
-              { className: "bottom-7 right-7 bg-sky-300/15 text-sky-100", Icon: ShieldCheck },
-            ].map(({ className, Icon }, index) => (
-              <motion.div
-                key={className}
-                className={`absolute flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 ${className}`}
-                animate={{ y: [0, -8, 0], scale: [1, 1.05, 1] }}
-                transition={{ duration: 3.2, delay: index * 0.35, repeat: Infinity, ease: "easeInOut" }}
-                aria-hidden="true"
-              >
-                <Icon className="h-5 w-5" />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {workflowSteps.map((step, index) => (
-            <motion.div
-              key={step}
-              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] p-4 transition hover:border-cyan-300/35 hover:bg-white/[0.075]"
-              animate={{ borderColor: ["rgba(255,255,255,0.1)", "rgba(103,232,249,0.38)", "rgba(255,255,255,0.1)"] }}
-              transition={{ duration: 4, delay: index * 0.5, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-cyan-300 to-blue-500 opacity-70" aria-hidden="true" />
-              <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-cyan-300/10 font-mono text-[11px] text-cyan-200">0{index + 1}</span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-slate-100">{step}</p>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-                    <motion.div
-                      className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-blue-400"
-                      initial={{ width: "18%" }}
-                      animate={{ width: ["18%", "92%", "42%"] }}
-                      transition={{ duration: 5, delay: index * 0.45, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                  </div>
-                </div>
-                <Zap className="h-4 w-4 text-cyan-200 opacity-70 transition group-hover:scale-110" aria-hidden="true" />
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      <div className="relative mt-4 grid gap-3 sm:grid-cols-4">
-        {metrics.map((metric) => (
-          <div
-            key={metric.label}
-            className="rounded-2xl border border-white/10 bg-slate-950/55 p-3"
-          >
-            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-slate-400">{metric.label}</p>
-            <p className="mt-2 text-xl font-semibold tracking-[-0.05em] text-white">{metric.value}</p>
-          </div>
-        ))}
-      </div>
+      <div className="floating-panel"><span className="float-kicker">A connected experience</span><strong>From first click to follow-up.</strong><span className="float-row"><Globe2 size={15} /> Your website <ArrowRight size={14} /> <Bot size={15} /> Your workflow</span></div>
     </div>
   );
 }
 
-function OperationsIllustration() {
-  const flowNodes = [
-    { label: "Intake", detail: "Forms", Icon: Database, tone: "cyan", className: "left-[7%] top-[22%]" },
-    { label: "Rules", detail: "Logic", Icon: GitBranch, tone: "blue", className: "left-[7%] bottom-[22%]" },
-    { label: "Review", detail: "Approvals", Icon: Users, tone: "emerald", className: "right-[7%] top-[22%]" },
-    { label: "Output", detail: "Reports", Icon: FileCheck2, tone: "amber", className: "right-[7%] bottom-[22%]" },
-  ];
+function SiteVisual() {
+  return <div className="site-visual" aria-label="Illustration of a small business website on desktop and mobile" role="img">
+    <div className="site-browser"><div className="site-toolbar"><span>● ● ●</span><span>brownstone / your business</span></div><div className="site-preview"><div className="site-nav"><span className="site-monogram">Y.</span><span>Services &nbsp;&nbsp; About &nbsp;&nbsp; Contact</span></div><div className="site-preview-content"><span className="visual-overline">YOUR BUSINESS, CLEARLY PRESENTED</span><strong>A better first impression starts here.</strong><span className="site-preview-copy">A beautiful, easy-to-use home for the work you do.</span><span className="visual-button">Get in touch <ArrowUpRight size={12} /></span></div><div className="site-preview-panels"><span /><span /><span /></div></div></div>
+    <div className="phone"><div className="phone-notch" /><div className="phone-content"><span className="site-monogram">Y.</span><span className="phone-art" /><strong>Made for the way people browse.</strong><span className="phone-lines" /><span className="phone-lines short" /><span className="visual-button">Contact us</span></div></div>
+  </div>;
+}
 
-  const activityRows = [
-    ["CSV import normalized", "2.4s", "bg-cyan-300"],
-    ["Approval routed to Finance", "live", "bg-emerald-300"],
-    ["Exception queue updated", "8 new", "bg-orange-300"],
-  ];
-
-  const toneClasses: Record<string, string> = {
-    cyan: "border-cyan-200/25 bg-cyan-300/[0.12] text-cyan-100 shadow-cyan-950/30",
-    blue: "border-blue-200/25 bg-blue-300/[0.12] text-blue-100 shadow-blue-950/30",
-    emerald: "border-emerald-200/25 bg-emerald-300/[0.12] text-emerald-100 shadow-emerald-950/30",
-    amber: "border-orange-200/25 bg-orange-300/[0.12] text-orange-100 shadow-orange-950/30",
-  };
-
-  return (
-    <motion.div
-      className="group relative min-h-[430px] overflow-hidden rounded-[2.25rem] border border-cyan-200/18 bg-[linear-gradient(145deg,rgba(15,23,42,0.92),rgba(2,6,23,0.78)_46%,rgba(8,47,73,0.5))] p-5 shadow-[0_28px_90px_rgba(8,47,73,0.34)] backdrop-blur-xl sm:p-6"
-      whileHover={{ y: -4, scale: 1.006 }}
-      transition={{ type: "spring", stiffness: 170, damping: 22 }}
-      aria-label="Interactive workflow collaboration illustration"
-    >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(103,232,249,0.16),transparent_30%),radial-gradient(circle_at_76%_74%,rgba(251,146,60,0.12),transparent_28%),linear-gradient(120deg,rgba(255,255,255,0.07),transparent_38%)]" aria-hidden="true" />
-      <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent" aria-hidden="true" />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.05)_1px,transparent_1px)] bg-[size:42px_42px] opacity-70" aria-hidden="true" />
-
-      <div className="relative flex items-start justify-between gap-4">
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-cyan-200/90">workflow operating layer</p>
-          <h3 className="mt-2 text-2xl font-semibold tracking-[-0.045em] text-white">One system around the real process</h3>
-        </div>
-        <div className="flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1.5 text-xs font-medium text-emerald-100 shadow-[0_0_24px_rgba(16,185,129,0.14)]">
-          <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_14px_rgba(110,231,183,0.95)]" aria-hidden="true" />
-          Synced
-        </div>
-      </div>
-
-      <div className="relative mt-6 min-h-[278px] rounded-[1.75rem] border border-white/10 bg-slate-950/45 p-4 shadow-inner shadow-black/20">
-        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 620 300" fill="none" aria-hidden="true">
-          <path d="M116 92 C220 70 254 130 310 150" stroke="url(#opsLineA)" strokeWidth="3" strokeLinecap="round" strokeDasharray="7 13" />
-          <path d="M116 208 C222 230 254 170 310 150" stroke="url(#opsLineB)" strokeWidth="3" strokeLinecap="round" strokeDasharray="7 13" />
-          <path d="M310 150 C376 106 432 86 506 92" stroke="url(#opsLineC)" strokeWidth="3" strokeLinecap="round" strokeDasharray="7 13" />
-          <path d="M310 150 C376 194 432 214 506 208" stroke="url(#opsLineD)" strokeWidth="3" strokeLinecap="round" strokeDasharray="7 13" />
-          <defs>
-            <linearGradient id="opsLineA" x1="116" x2="310" y1="92" y2="150"><stop stopColor="#67e8f9" /><stop offset="1" stopColor="#38bdf8" /></linearGradient>
-            <linearGradient id="opsLineB" x1="116" x2="310" y1="208" y2="150"><stop stopColor="#93c5fd" /><stop offset="1" stopColor="#67e8f9" /></linearGradient>
-            <linearGradient id="opsLineC" x1="310" x2="506" y1="150" y2="92"><stop stopColor="#67e8f9" /><stop offset="1" stopColor="#6ee7b7" /></linearGradient>
-            <linearGradient id="opsLineD" x1="310" x2="506" y1="150" y2="208"><stop stopColor="#67e8f9" /><stop offset="1" stopColor="#fb923c" /></linearGradient>
-          </defs>
-        </svg>
-
-        <div className="absolute left-1/2 top-1/2 z-10 w-[12.8rem] -translate-x-1/2 -translate-y-1/2 rounded-[1.75rem] border border-cyan-200/25 bg-slate-950/88 p-4 text-center shadow-[0_0_50px_rgba(34,211,238,0.2)] backdrop-blur">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-200/25 bg-cyan-300/10 text-cyan-100">
-            <Workflow className="h-7 w-7" aria-hidden="true" />
-          </div>
-          <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-200">Unified workflow</p>
-          <p className="mt-1 text-sm font-medium leading-5 text-slate-200">People, data, approvals, and outputs in one loop.</p>
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            {["rules", "data", "alerts"].map((item) => (
-              <span key={item} className="rounded-full border border-white/10 bg-white/[0.055] px-2 py-1 font-mono text-[9px] uppercase tracking-[0.12em] text-slate-300">{item}</span>
-            ))}
-          </div>
-        </div>
-
-        {flowNodes.map(({ label, detail, Icon, tone, className }, index) => (
-          <motion.div
-            key={label}
-            className={`absolute z-20 w-[9.55rem] rounded-2xl border p-3 shadow-xl backdrop-blur ${className} ${toneClasses[tone]}`}
-            animate={{ y: [0, index % 2 === 0 ? -7 : 7, 0] }}
-            transition={{ duration: 4.4, delay: index * 0.32, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-950/45">
-                <Icon className="h-4 w-4" aria-hidden="true" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold leading-4 text-white">{label}</p>
-                <p className="mt-0.5 text-[10px] leading-4 text-slate-300">{detail}</p>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="relative mt-4 grid gap-3 sm:grid-cols-[1fr_0.82fr]">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-400">Live activity</p>
-            <Activity className="h-4 w-4 text-cyan-200" aria-hidden="true" />
-          </div>
-          <div className="space-y-2">
-            {activityRows.map(([label, status, dot], index) => (
-              <motion.div
-                key={label}
-                className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"
-                animate={{ opacity: [0.72, 1, 0.72] }}
-                transition={{ duration: 3.2, delay: index * 0.45, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <span className="flex items-center gap-2"><span className={`h-1.5 w-1.5 rounded-full ${dot}`} />{label}</span>
-                <span className="font-mono text-cyan-100">{status}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.055] p-3">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-cyan-200">System health</p>
-          <div className="mt-3 space-y-3">
-            {[
-              ["Data synced", "96%"],
-              ["Manual steps removed", "14"],
-              ["Approvals active", "7"],
-            ].map(([label, value]) => (
-              <div key={label} className="flex items-center justify-between border-b border-white/10 pb-2 last:border-0 last:pb-0">
-                <span className="text-xs text-slate-400">{label}</span>
-                <span className="font-mono text-sm text-white">{value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
+function AgentVisual() {
+  return <div className="agent-visual" aria-label="Illustration of an AI-assisted workflow with human approval" role="img">
+    <div className="agent-head"><span><span className="live-dot" /> WORKFLOW / EXAMPLE</span><span>Designed for your process</span></div>
+    <div className="agent-track"><div className="agent-step"><span className="step-symbol"><MousePointer2 size={21} /></span><span><small>01 / INPUT</small><strong>New inquiry arrives</strong><em>Website form or existing tool</em></span></div><span className="track-line" /><div className="agent-step highlighted"><span className="step-symbol"><Sparkles size={21} /></span><span><small>02 / AI ASSIST</small><strong>Agent prepares the next step</strong><em>Organize, validate, draft</em></span></div><span className="track-line" /><div className="agent-step"><span className="step-symbol"><Check size={21} /></span><span><small>03 / HUMAN REVIEW</small><strong>Your team stays in control</strong><em>Review and send</em></span></div></div>
+    <div className="agent-footer"><span><Database size={15} /> Connected to your tools</span><span><Zap size={15} /> Less manual work</span></div>
+  </div>;
 }
 
 export default function Home() {
-  const [auditFormData, setAuditFormData] = useState<AuditFormData>({
-    name: "",
-    email: "",
-    company: "",
-    message: "",
-  });
-  const [auditFormErrors, setAuditFormErrors] = useState<AuditFormErrors>({});
-  const [isSubmittingAudit, setIsSubmittingAudit] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [openQuestion, setOpenQuestion] = useState<number | null>(0);
+  const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [formStatus, setFormStatus] = useState<{ kind: "success" | "error"; message: string } | null>(null);
 
-  const validateAuditForm = () => {
-    const errors: AuditFormErrors = {};
-
-    if (!auditFormData.name.trim()) {
-      errors.name = "Name is required";
-    }
-
-    if (!auditFormData.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(auditFormData.email)) {
-      errors.email = "Please enter a valid email address";
-    }
-
-    if (!auditFormData.company.trim()) {
-      errors.company = "Company is required";
-    }
-
-    if (!auditFormData.message.trim()) {
-      errors.message = "Tell us which workflow is slowing you down";
-    }
-
-    setAuditFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleAuditFormChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = event.target;
-
-    setAuditFormData((previous) => ({ ...previous, [name]: value }));
-
-    if (auditFormErrors[name as keyof AuditFormData]) {
-      setAuditFormErrors((previous) => {
-        const updatedErrors = { ...previous };
-        delete updatedErrors[name as keyof AuditFormData];
-        return updatedErrors;
-      });
-    }
-  };
-
-  const handleAuditSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    if (!validateAuditForm()) {
-      return;
+    if (submitting) return;
+    setSubmitting(true);
+    setFormStatus(null);
+    try {
+      const result = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, website: (event.currentTarget.elements.namedItem("website") as HTMLInputElement)?.value || "" }),
+      });
+      const data = await result.json().catch(() => ({}));
+      if (!result.ok || !data.ok) throw new Error(data.error || "We couldn't send your message. Please email tbrown@brownstonehub.com directly.");
+      setForm({ name: "", email: "", company: "", message: "" });
+      setFormStatus({ kind: "success", message: "Thanks — your message has been sent. We'll be in touch soon." });
+    } catch (error) {
+      setFormStatus({ kind: "error", message: error instanceof Error ? error.message : "We couldn't send your message. Please email tbrown@brownstonehub.com directly." });
+    } finally {
+      setSubmitting(false);
     }
+  }
 
-    setIsSubmittingAudit(true);
+  return <>
+    <header className="site-header"><div className="header-inner">
+      <a href="#top" className="brand" aria-label="Brownstone Hub Solutions home"><Mark /><span>Brownstone <strong>Hub</strong><small>SOLUTIONS</small></span></a>
+      <nav className={`main-nav ${menuOpen ? "nav-open" : ""}`} aria-label="Main navigation">
+        <a href="#services" onClick={() => setMenuOpen(false)}>Services</a><a href="#websites" onClick={() => setMenuOpen(false)}>Websites</a><a href="#automation" onClick={() => setMenuOpen(false)}>AI automation</a><a href="#about" onClick={() => setMenuOpen(false)}>About</a>
+      </nav>
+      <div className="header-actions"><a className="header-text-link" href="#questions">Questions</a><ButtonLink href="#contact">Let&apos;s talk <ArrowUpRight size={16} /></ButtonLink></div>
+      <button type="button" className="mobile-menu" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
+    </div></header>
 
-    const schedulingUrl = new URL(calendlyUrl);
-    schedulingUrl.searchParams.set("name", auditFormData.name.trim());
-    schedulingUrl.searchParams.set("email", auditFormData.email.trim());
-    schedulingUrl.searchParams.set("a1", auditFormData.company.trim());
-    schedulingUrl.searchParams.set("a2", auditFormData.message.trim());
+    <main id="top">
+      <section className="hero dark-section"><div className="hero-glow" /><div className="container hero-inner"><div className="hero-copy"><span className="eyebrow">WEBSITES &amp; AI AUTOMATION</span><h1>Better websites.<br /><span>Smarter workflows.</span></h1><p>We build websites for small businesses and AI-agent workflows that take repetitive work off your team&apos;s plate. Make a stronger first impression. Connect the tools behind the scenes. Keep your people focused on what matters.</p><div className="button-row"><ButtonLink href="#contact">Send us a message <ArrowUpRight size={17} /></ButtonLink><ButtonLink href="#services" secondary>Explore what we build <ArrowRight size={17} /></ButtonLink></div></div><FlowVisual /></div></section>
 
-    window.location.href = schedulingUrl.toString();
-  };
+      <section id="services" className="dark-section value-section"><div className="container"><div className="section-intro centered"><span className="eyebrow">BUILT AROUND YOUR BUSINESS</span><h2>Make the front end look great.<br />Make the back end work better.</h2><p>From the first visit to the follow-up, we build practical technology that helps small businesses show up professionally and operate efficiently.</p></div><div className="benefit-grid">{benefits.map(({ icon: Icon, title, copy }) => <article className="benefit-card" key={title}><div className="benefit-icon"><Icon size={27} strokeWidth={1.7} /></div><h3>{title}</h3><p>{copy}</p><a href="#contact">Talk about your project <ArrowUpRight size={16} /></a></article>)}</div></div></section>
 
-  return (
-    <main className="relative isolate overflow-hidden bg-slate-950 text-white">
-      <div className="noise" aria-hidden="true" />
-      <div className="bg-grid fixed inset-0 z-0" aria-hidden="true" />
-      <div className="fixed left-1/2 top-0 z-0 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-cyan-400/10 blur-3xl" aria-hidden="true" />
+      <section id="websites" className="dark-section feature-section"><div className="container feature-grid"><div className="feature-copy"><span className="eyebrow">WEBSITES FOR SMALL BUSINESSES</span><h2>Give your business a website that works as hard as you do.</h2><p>People should understand what you offer within seconds. We create clear, modern websites that make your business easy to find, easy to trust, and easy to contact.</p><ul className="check-list"><li><Check /> Responsive, easy-to-navigate pages</li><li><Check /> Clear services and conversion paths</li><li><Check /> Forms connected to your next steps</li><li><Check /> A foundation you can grow with</li></ul><a className="text-link" href="#contact">Let&apos;s build your website <ArrowUpRight size={19} /></a></div><SiteVisual /></div></section>
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/65 backdrop-blur-2xl">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-6 lg:px-8" aria-label="Primary navigation">
-          <a href="#top" className="flex items-center gap-3" aria-label="Brownstone Hub Solutions home">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-cyan-300/30 bg-cyan-300/10 shadow-[0_0_25px_rgba(34,211,238,0.24)]">
-              <Building2 className="h-5 w-5 text-cyan-200" aria-hidden="true" />
-            </span>
-            <span>
-              <span className="block text-sm font-semibold tracking-[-0.02em]">Brownstone Hub</span>
-              <span className="block font-mono text-[10px] uppercase tracking-[0.22em] text-cyan-200">Solutions</span>
-            </span>
-          </a>
-          <div className="hidden items-center gap-7 text-sm text-slate-300 md:flex">
-            <a className="transition hover:text-cyan-200" href="#services">Services</a>
-            <a className="transition hover:text-cyan-200" href="#use-cases">Use cases</a>
-            <a className="transition hover:text-cyan-200" href="#process">Process</a>
-            <a className="transition hover:text-cyan-200" href="#capabilities">Capabilities</a>
-          </div>
-          <Button asChild size="sm">
-            <a href="#contact">Book Audit</a>
-          </Button>
-        </nav>
-      </header>
+      <section id="automation" className="dark-section feature-section feature-reverse"><div className="container feature-grid"><div className="feature-copy"><span className="eyebrow">AI AGENTS &amp; WORKFLOW AUTOMATION</span><h2>Put your busywork on a better path.</h2><p>When your team is copying information between tools, chasing approvals, or rebuilding the same report each week, there&apos;s a better way. We design AI-assisted workflows around the real process—not a generic chatbot.</p><p>Think intake, data cleanup, draft preparation, reporting, compliance, reconciliation, and thoughtful human review where it matters.</p><a className="text-link" href="#contact">Explore an automation <ArrowUpRight size={19} /></a></div><AgentVisual /></div></section>
 
-      <section id="top" className="relative z-10 mx-auto grid min-h-[calc(100vh-73px)] max-w-7xl items-center gap-12 px-5 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
-          <Badge>
-            <Bot className="mr-2 h-3.5 w-3.5" aria-hidden="true" />
-            AI automation + custom technology systems
-          </Badge>
-          <h1 className="mt-7 max-w-5xl text-5xl font-semibold tracking-[-0.075em] text-white sm:text-6xl lg:text-7xl">
-            Turn Messy Business Workflows Into Intelligent Systems
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300 sm:text-xl">
-            Brownstone Hub Solutions helps small and mid-sized businesses automate reporting, compliance, reconciliation, data analysis, and other time-consuming workflows with custom AI-powered tools built around how your business actually operates.
-          </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg">
-              <a href="#contact">Book a Workflow Audit <ArrowRight className="h-4 w-4" aria-hidden="true" /></a>
-            </Button>
-            <Button asChild variant="secondary" size="lg">
-              <a href="#use-cases">See What We Automate</a>
-            </Button>
-          </div>
-          <div className="mt-10 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
-            {["Reporting", "Compliance", "Reconciliation", "Dashboards"].map((item) => (
-              <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center font-mono text-[11px] uppercase tracking-[0.16em] text-slate-300">
-                {item}
-              </div>
-            ))}
-          </div>
-        </motion.div>
+      <section className="dark-section feature-section final-feature"><div className="container feature-grid"><div className="feature-copy"><span className="eyebrow">CUSTOM-BUILT, NOT ONE-SIZE-FITS-ALL</span><h2>One technical partner for the whole picture.</h2><p>Brownstone Hub Solutions brings website development, software engineering, integrations, reporting, and practical AI together. We can start with one small bottleneck or help untangle a larger operating process.</p><p>Our existing work also spans internal apps, dashboards, compliance workflows, bank reconciliation, and fractional CTO support for growing businesses.</p><a className="text-link" href="#contact">Tell us what you need <ArrowUpRight size={19} /></a></div><div className="capability-visual" aria-label="Capabilities across websites, AI agents, and business systems"><div className="capability-center"><Mark /><span>YOUR<br />BUSINESS</span></div><div className="cap-card cap-one"><Globe2 /><span>Website</span></div><div className="cap-card cap-two"><Bot /><span>AI agents</span></div><div className="cap-card cap-three"><Code2 /><span>Custom tools</span></div><div className="cap-card cap-four"><FileCheck2 /><span>Reporting</span></div><span className="cap-ring cap-ring-one" /><span className="cap-ring cap-ring-two" /></div></div></section>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.94, y: 30 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="relative"
-          aria-label="Automation dashboard preview"
-        >
-          <div className="absolute -inset-4 rounded-[2.5rem] bg-cyan-400/20 blur-3xl" aria-hidden="true" />
-          <CommandCenterGraphic />
-        </motion.div>
-      </section>
+      <section id="about" className="dark-section approach-section"><div className="container"><span className="eyebrow">HOW WE WORK</span><h2>Technology should solve<br />a real business problem.</h2><div className="approach-grid"><div><span className="approach-number">01</span><h3>Understand</h3><p>We learn how customers find you and how your team actually gets work done.</p></div><div><span className="approach-number">02</span><h3>Build</h3><p>We design the right website, workflow, integration, or custom tool for the job.</p></div><div><span className="approach-number">03</span><h3>Improve</h3><p>We refine what&apos;s working and adjust the system as your needs change.</p></div></div></div></section>
 
-      <AnimatedSection className="relative z-10 mx-auto max-w-5xl px-5 pb-20 sm:px-6 lg:px-8">
-        <Reveal>
-          <Card className="overflow-hidden border-white/10 bg-white/[0.045]">
-            <CardContent className="p-7 sm:p-10">
-              <p className="text-xl leading-9 text-slate-200">
-                Most small and mid-sized businesses are not short on tools. They are buried under them. Spreadsheets, email threads, PDFs, shared drives, outdated websites, disconnected CRMs, manual reports, and one-off processes slowly become the way the business runs. Brownstone Hub Solutions helps businesses identify the repetitive, manual, and data-heavy workflows slowing them down — then builds custom software and AI automation to make those workflows faster, cleaner, and easier to manage.
-              </p>
-            </CardContent>
-          </Card>
-        </Reveal>
-      </AnimatedSection>
+      <section id="questions" className="light-section faq-section"><div className="container faq-container"><span className="eyebrow">GOOD TO KNOW</span><h2>Common questions</h2><div className="faq-list">{questions.map(({ question, answer }, index) => <div className="faq-item" key={question}><button type="button" id={`question-${index}`} aria-expanded={openQuestion === index} aria-controls={`answer-${index}`} onClick={() => setOpenQuestion(openQuestion === index ? null : index)}>{question}<ChevronDown className={openQuestion === index ? "rotate" : ""} size={22} /></button><div id={`answer-${index}`} role="region" aria-labelledby={`question-${index}`} hidden={openQuestion !== index}><p>{answer}</p></div></div>)}</div></div></section>
 
-      <AnimatedSection id="services" className="relative z-10 mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
-          <Reveal className="max-w-3xl">
-            <SectionLabel>Services</SectionLabel>
-            <h2 className="text-4xl font-semibold tracking-[-0.06em] sm:text-5xl">Automation and software that fits the way your business actually runs.</h2>
-            <p className="mt-5 text-lg leading-8 text-slate-400">From one painful spreadsheet process to a full internal platform, we build the technical layer that turns manual operations into repeatable systems.</p>
-            <div className="mt-7 grid gap-3 sm:grid-cols-3">
-              {["People", "Data", "Approvals"].map((item) => (
-                <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 font-mono text-[11px] uppercase tracking-[0.16em] text-cyan-100">
-                  {item} synced
-                </div>
-              ))}
-            </div>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <OperationsIllustration />
-          </Reveal>
-        </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {services.map((service, index) => {
-            const Icon = service.icon;
-            return (
-              <motion.article
-                key={service.title}
-                variants={cardReveal}
-                initial="hidden"
-                whileInView="visible"
-                viewport={viewportOnce}
-                transition={{ duration: 0.58, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <Card className="group h-full overflow-hidden transition duration-300 hover:-translate-y-1 hover:border-cyan-300/35 hover:bg-white/[0.075]">
-                  <CardHeader>
-                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 text-cyan-200 transition group-hover:scale-105 group-hover:bg-cyan-300/15">
-                      <Icon className="h-6 w-6" aria-hidden="true" />
-                    </div>
-                    <CardTitle>{service.title}</CardTitle>
-                    <CardDescription>{service.copy}</CardDescription>
-                  </CardHeader>
-                </Card>
-              </motion.article>
-            );
-          })}
-        </div>
-      </AnimatedSection>
-
-      <AnimatedSection id="use-cases" className="relative z-10 mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-          <Reveal>
-            <SectionLabel>Use cases</SectionLabel>
-            <h2 className="text-4xl font-semibold tracking-[-0.06em] sm:text-5xl">Where messy work becomes measurable leverage.</h2>
-            <p className="mt-5 text-lg leading-8 text-slate-400">We look for data-heavy, repetitive, exception-prone processes where automation can save hours every week and improve accuracy.</p>
-          </Reveal>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {useCases.map(([title, copy], index) => (
-              <Reveal key={title} delay={index * 0.06}>
-                <Card className="h-full bg-slate-950/55 transition duration-300 hover:-translate-y-1 hover:border-cyan-300/30 hover:bg-white/[0.07]">
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="h-6 w-6 shrink-0 text-cyan-200" aria-hidden="true" />
-                      <CardTitle className="text-lg">{title}</CardTitle>
-                    </div>
-                    <CardDescription>{copy}</CardDescription>
-                  </CardHeader>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <AnimatedSection className="relative z-10 mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8">
-        <Reveal>
-          <Card className="relative overflow-hidden border-blue-300/20 bg-gradient-to-br from-blue-950/70 via-slate-950/80 to-cyan-950/40">
-            <div className="absolute right-[-10%] top-[-35%] h-96 w-96 rounded-full bg-cyan-300/15 blur-3xl" aria-hidden="true" />
-            <CardContent className="relative grid gap-10 p-8 sm:p-12 lg:grid-cols-[0.9fr_1.1fr] lg:p-14">
-              <div>
-                <Badge>Clear differentiation</Badge>
-                <h2 className="mt-6 text-4xl font-semibold tracking-[-0.06em] sm:text-5xl">We Are Not Here to Sell You AI Hype</h2>
-              </div>
-              <div>
-                <p className="text-xl leading-9 text-slate-200">
-                  AI is useful, but only when it is connected to the right workflow, the right data, and the right business problem. A chatbot alone will not fix broken operations. A generic SaaS tool will not understand the messy details of your process. Brownstone Hub Solutions builds durable systems that combine software engineering, workflow automation, data processing, and AI implementation.
-                </p>
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  {["Software first", "AI where useful", "Built for operations"].map((item) => (
-                    <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-semibold text-cyan-100">{item}</div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Reveal>
-      </AnimatedSection>
-
-      <AnimatedSection id="process" className="relative z-10 mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8">
-        <Reveal>
-          <SectionLabel>How it works</SectionLabel>
-        </Reveal>
-        <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr]">
-          <Reveal>
-            <h2 className="text-4xl font-semibold tracking-[-0.06em] sm:text-5xl">A practical path from workflow chaos to operating system.</h2>
-            <p className="mt-5 text-lg leading-8 text-slate-400">No vague transformation theater. We start with a specific workflow, quantify the pain, then build and improve the system.</p>
-          </Reveal>
-          <div className="grid gap-4">
-            {workflow.map((item, index) => (
-              <Reveal key={item.step} delay={index * 0.07}>
-                <Card className="group overflow-hidden bg-white/[0.045] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/30 hover:bg-white/[0.07]">
-                  <CardContent className="flex gap-5 p-6">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-cyan-300/25 bg-cyan-300/10 font-mono text-sm font-semibold text-cyan-200">{item.step}</div>
-                    <div>
-                      <h3 className="text-xl font-semibold tracking-[-0.03em]">{item.title}</h3>
-                      <p className="mt-2 leading-7 text-slate-400">{item.copy}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <AnimatedSection id="about" className="relative z-10 mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-3">
-          <Reveal className="lg:col-span-2">
-            <Card>
-              <CardContent className="p-8 sm:p-10">
-                <SectionLabel>About</SectionLabel>
-                <h2 className="text-4xl font-semibold tracking-[-0.06em] sm:text-5xl">A technical partner for SMB operators who need more than another subscription.</h2>
-                <p className="mt-6 text-lg leading-8 text-slate-300">Brownstone Hub Solutions is a brand under Brownstone Hub LLC focused on practical automation, internal tools, and AI-enabled software for small and mid-sized businesses. We work like a focused technology partner: understanding how work actually gets done, identifying what should be automated or rebuilt, and delivering systems that remove recurring friction.</p>
-              </CardContent>
-            </Card>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <Card className="h-full bg-cyan-300/10">
-              <CardContent className="p-8">
-                <PieChart className="h-10 w-10 text-cyan-200" aria-hidden="true" />
-                <p className="mt-8 font-mono text-xs uppercase tracking-[0.18em] text-cyan-200">Engagement model</p>
-                <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">Workflow audit, automation roadmap, custom build, ongoing improvement.</p>
-              </CardContent>
-            </Card>
-          </Reveal>
-        </div>
-      </AnimatedSection>
-
-      <AnimatedSection id="capabilities" className="relative z-10 mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-          <Reveal>
-            <SectionLabel>Tech capabilities</SectionLabel>
-            <h2 className="text-4xl font-semibold tracking-[-0.06em] sm:text-5xl">Modern stack. Secure architecture. Business-specific implementation.</h2>
-            <p className="mt-5 text-lg leading-8 text-slate-400">We combine application engineering, database design, integrations, AI services, authentication, dashboards, and deployment practices into one coherent solution.</p>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <Card>
-              <CardContent className="p-7">
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {tech.map((item, index) => (
-                    <motion.div
-                      key={item}
-                      variants={cardReveal}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={viewportOnce}
-                      transition={{ duration: 0.48, delay: index * 0.025, ease: [0.22, 1, 0.36, 1] }}
-                      className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-200"
-                    >
-                      {item}
-                    </motion.div>
-                  ))}
-                </div>
-                <Separator className="my-7" />
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="flex items-center gap-3 text-sm text-slate-300"><Database className="h-5 w-5 text-cyan-200" /> Data pipelines</div>
-                  <div className="flex items-center gap-3 text-sm text-slate-300"><LockKeyhole className="h-5 w-5 text-cyan-200" /> Secure access</div>
-                  <div className="flex items-center gap-3 text-sm text-slate-300"><GitBranch className="h-5 w-5 text-cyan-200" /> API workflows</div>
-                </div>
-              </CardContent>
-            </Card>
-          </Reveal>
-        </div>
-      </AnimatedSection>
-
-      <AnimatedSection className="relative z-10 mx-auto max-w-5xl px-5 py-20 sm:px-6 lg:px-8">
-        <Reveal>
-          <Card>
-            <CardHeader>
-              <SectionLabel>Common questions</SectionLabel>
-              <CardTitle className="text-3xl sm:text-4xl">Before the workflow audit</CardTitle>
-              <CardDescription>Quick answers for operators evaluating AI automation, internal tools, or fractional CTO support.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Accordion type="single" collapsible defaultValue="item-1">
-                <AccordionItem value="item-1">
-                  <AccordionTrigger>Do we need clean data before starting?</AccordionTrigger>
-                  <AccordionContent>No. Messy data is usually part of the problem. The audit identifies what needs cleaning, validation, standardization, and integration before automation is reliable.</AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2">
-                  <AccordionTrigger>Is this just chatbot implementation?</AccordionTrigger>
-                  <AccordionContent>No. AI may be part of the system, but the core work is software engineering, workflow design, data processing, integrations, dashboards, and operational controls.</AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-3">
-                  <AccordionTrigger>Can you work with our existing tools?</AccordionTrigger>
-                  <AccordionContent>Yes. We can connect to APIs, databases, exports, spreadsheets, PDFs, existing websites, CRMs, accounting systems, and custom software where access allows.</AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </CardContent>
-          </Card>
-        </Reveal>
-      </AnimatedSection>
-
-      <AnimatedSection id="contact" className="relative z-10 mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8">
-        <Reveal>
-          <Card className="relative overflow-hidden border-cyan-300/25 bg-gradient-to-br from-slate-900/95 via-slate-950 to-blue-950/60">
-            <div className="absolute left-[-12%] top-[-20%] h-96 w-96 rounded-full bg-cyan-300/15 blur-3xl" aria-hidden="true" />
-            <CardContent className="relative grid gap-10 p-8 sm:p-12 lg:grid-cols-[0.9fr_1.1fr] lg:p-14">
-              <div>
-                <Badge>Contact / workflow audit</Badge>
-                <h2 className="mt-6 text-4xl font-semibold tracking-[-0.06em] sm:text-5xl">Ready to find the workflows costing your team the most time?</h2>
-                <p className="mt-6 text-lg leading-8 text-slate-300">Book a workflow audit and we will identify the repetitive reporting, compliance, reconciliation, spreadsheet, and data-heavy processes that are good candidates for automation or custom software.</p>
-                <div className="mt-8 space-y-4 text-sm text-slate-300">
-                  <div className="flex gap-3"><ShieldCheck className="h-5 w-5 text-cyan-200" /> Practical recommendations, not AI theater.</div>
-                  <div className="flex gap-3"><Layers3 className="h-5 w-5 text-cyan-200" /> Software, integrations, dashboards, and automation in one plan.</div>
-                  <div className="flex gap-3"><Workflow className="h-5 w-5 text-cyan-200" /> Built around your existing operational reality.</div>
-                </div>
-              </div>
-              <form onSubmit={handleAuditSubmit} className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-5 backdrop-blur-xl sm:p-7" aria-label="Workflow audit request form">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label htmlFor="audit-name" className="space-y-2 text-sm font-medium text-slate-200">
-                    Name
-                    <Input
-                      id="audit-name"
-                      name="name"
-                      value={auditFormData.name}
-                      onChange={handleAuditFormChange}
-                      placeholder="Your name"
-                      autoComplete="name"
-                      aria-invalid={Boolean(auditFormErrors.name)}
-                    />
-                    {auditFormErrors.name && <span className="block text-xs text-red-300">{auditFormErrors.name}</span>}
-                  </label>
-                  <label htmlFor="audit-email" className="space-y-2 text-sm font-medium text-slate-200">
-                    Email
-                    <Input
-                      id="audit-email"
-                      name="email"
-                      type="email"
-                      value={auditFormData.email}
-                      onChange={handleAuditFormChange}
-                      placeholder="you@company.com"
-                      autoComplete="email"
-                      aria-invalid={Boolean(auditFormErrors.email)}
-                    />
-                    {auditFormErrors.email && <span className="block text-xs text-red-300">{auditFormErrors.email}</span>}
-                  </label>
-                </div>
-                <label htmlFor="audit-company" className="mt-4 block space-y-2 text-sm font-medium text-slate-200">
-                  Company
-                  <Input
-                    id="audit-company"
-                    name="company"
-                    value={auditFormData.company}
-                    onChange={handleAuditFormChange}
-                    placeholder="Company name"
-                    autoComplete="organization"
-                    aria-invalid={Boolean(auditFormErrors.company)}
-                  />
-                  {auditFormErrors.company && <span className="block text-xs text-red-300">{auditFormErrors.company}</span>}
-                </label>
-                <label htmlFor="audit-message" className="mt-4 block space-y-2 text-sm font-medium text-slate-200">
-                  What workflow is slowing you down?
-                  <Textarea
-                    id="audit-message"
-                    name="message"
-                    value={auditFormData.message}
-                    onChange={handleAuditFormChange}
-                    placeholder="Example: monthly compliance reports, bank reconciliations, spreadsheet-heavy approvals, disconnected dashboards..."
-                    aria-invalid={Boolean(auditFormErrors.message)}
-                  />
-                  {auditFormErrors.message && <span className="block text-xs text-red-300">{auditFormErrors.message}</span>}
-                </label>
-                <Button type="submit" disabled={isSubmittingAudit} className="mt-6 w-full" size="lg">
-                  {isSubmittingAudit ? "Opening Calendly..." : "Book a Workflow Audit"} <ArrowRight className="h-4 w-4" />
-                </Button>
-                <p className="mt-4 text-center text-xs leading-5 text-slate-500">After the form, you’ll pick a time in Calendly. Your name and email will carry over automatically.</p>
-              </form>
-            </CardContent>
-          </Card>
-        </Reveal>
-      </AnimatedSection>
-
-      <footer className="relative z-10 border-t border-white/10 px-5 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} Brownstone Hub LLC. Brownstone Hub Solutions.</p>
-          <p className="font-mono uppercase tracking-[0.18em] text-slate-500">AI automation • custom software • fractional CTO</p>
-        </div>
-      </footer>
+      <section id="contact" className="light-section contact-section"><div className="container contact-grid"><div className="contact-copy"><span className="eyebrow">LET&apos;S GET STARTED</span><h2>Ready to build something better?</h2><p>Tell us about the website you need or the work you wish your team didn&apos;t have to do manually. We&apos;ll start with a conversation about what makes sense for your business.</p><div className="contact-note"><Play size={17} /> Websites • AI agents • Custom business tools</div></div><form className="contact-form" onSubmit={handleSubmit} aria-label="Contact form"><div className="form-row"><label>Name<input required autoComplete="name" value={form.name} onChange={event => setForm({ ...form, name: event.target.value })} placeholder="Your name" /></label><label>Email<input required type="email" autoComplete="email" value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} placeholder="you@company.com" /></label></div><label>Business name<input required autoComplete="organization" value={form.company} onChange={event => setForm({ ...form, company: event.target.value })} placeholder="Your business" /></label><label>What can we help you build?<textarea required rows={4} value={form.message} onChange={event => setForm({ ...form, message: event.target.value })} placeholder="Tell us about your website or a workflow you'd like to improve..." /></label><input name="website" type="text" tabIndex={-1} autoComplete="off" className="contact-honeypot" aria-hidden="true" /><button type="submit" className="action-button" disabled={submitting}>{submitting ? "Sending..." : "Send message"} <ArrowUpRight size={17} /></button>{formStatus && <p className={`form-status ${formStatus.kind}`} role="status">{formStatus.message}</p>}<p className="form-note">Your message will be sent directly to Brownstone Hub Solutions. No scheduling step.</p></form></div></section>
     </main>
-  );
+    <footer className="site-footer"><div className="container footer-inner"><a href="#top" className="brand"><Mark /><span>Brownstone <strong>Hub</strong><small>SOLUTIONS</small></span></a><p>Websites for small businesses. Smarter workflows with AI agents.</p><span>© {new Date().getFullYear()} Brownstone Hub LLC</span></div></footer>
+  </>;
 }
